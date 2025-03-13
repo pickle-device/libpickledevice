@@ -89,7 +89,7 @@ bool PickleDeviceManager::writeUncacheablePagePaddr(const uint64_t mmap_id) {
 }
 
 bool PickleDeviceManager::writeJobToPickleDevice(
-    const std::vector<uint8_t> job_descriptor) {
+    const std::vector<uint8_t>& job_descriptor) {
   return write_command_to_device(PickleDeviceCommand::SEND_JOB_DESCRIPTOR,
                                  job_descriptor.size(), job_descriptor.data());
 }

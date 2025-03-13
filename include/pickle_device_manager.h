@@ -44,6 +44,6 @@ class PickleDeviceManager
         void registerUncacheablePage(const uint64_t mmap_id, uint8_t* ptr, uint64_t paddr);
         void deallocateUncacheablePage(const uint64_t mmap_id);
         bool writeUncacheablePagePaddr(const uint64_t mmap_id);
-        bool writeJobToPickleDevice(const std::vector<uint8_t> job_descriptor);
+        bool writeJobToPickleDevice(const std::vector<uint8_t>& job_descriptor);
 };
 #endif // PICKLE_LIBRARY_INTERNAL_H
