@@ -57,7 +57,7 @@ uint8_t* PickleDeviceManager::getUCPagePtr(const uint64_t mmap_id) {
     }
     registerUncacheablePage(mmap_id, mmap_ptr, paddr);
     // induce page fault
-    mmap_ptr[0] = 0xDECAF;
+    mmap_ptr[0] = 0x42;
   }
   return mmap_id_to_uc_ptr_map[mmap_id];
 }

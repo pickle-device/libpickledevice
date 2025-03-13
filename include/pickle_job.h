@@ -201,8 +201,8 @@ class PickleJob
             job_descriptor.push_back(n_arrays);
             for (const auto & arr: arrays)
             {
-                this->addToJobDescriptor(job_descriptor, array_rename_map[arr->getArrayId()]);
-                this->addToJobDescriptor(job_descriptor, array_rename_map[arr->dst_indexing_array_id]);
+                this->addToJobDescriptor(job_descriptor, array_rename_map.at(arr->getArrayId()));
+                this->addToJobDescriptor(job_descriptor, array_rename_map.at(arr->dst_indexing_array_id));
                 this->addToJobDescriptor(job_descriptor, arr->vaddr_start);
                 this->addToJobDescriptor(job_descriptor, arr->vaddr_end);
                 this->addToJobDescriptor(job_descriptor, arr->element_size);
