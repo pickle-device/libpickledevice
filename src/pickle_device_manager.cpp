@@ -23,11 +23,7 @@
 
 #include "pickle_device_low_level.h"
 
-PickleDeviceManager::PickleDeviceManager() {
-  uint64_t mmap_id = 0;
-  uint8_t* mmap_ptr = getUCPagePtr(mmap_id);
-  writeUncacheablePagePaddr(mmap_id);
-}
+PickleDeviceManager::PickleDeviceManager() {}
 
 PickleDeviceManager::~PickleDeviceManager() { deallocateUncacheablePage(0); }
 
@@ -58,6 +54,7 @@ uint8_t* PickleDeviceManager::getUCPagePtr(const uint64_t mmap_id) {
     registerUncacheablePage(mmap_id, mmap_ptr, paddr);
     // induce page fault
     mmap_ptr[0] = 0x42;
+    writeUncacheablePagePaddr(mmap_id);
   }
   return mmap_id_to_uc_ptr_map[mmap_id];
 }
@@ -92,4 +89,15 @@ bool PickleDeviceManager::writeJobToPickleDevice(
     const std::vector<uint8_t>& job_descriptor) {
   return write_command_to_device(PickleDeviceCommand::SEND_JOB_DESCRIPTOR,
                                  job_descriptor.size(), job_descriptor.data());
+}
+
+PickleDevicePrefetcherSpecs PickleDeviceManager::getDevicePrefetcherSpecs() {
+  PickleDevicePrefetcherSpecs specs;
+  struct device_specs k_specs;
+
+  k_specs = get_device_specs();
+
+  specs.availability = k_specs.availability;
+  specs.prefetch_distance = k_specs.prefetch_distance;
+  return specs;
 }

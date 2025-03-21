@@ -440,6 +440,22 @@ class CSRGraph {
   std::shared_ptr<PickleArrayDescriptor> out_index_array_descriptor;
   std::shared_ptr<PickleArrayDescriptor> in_neighbors_array_descriptor;
   std::shared_ptr<PickleArrayDescriptor> out_neighbors_array_descriptor;
+
+ public:
+  void printGraph() {
+    for (int64_t node_id = 0; node_id < num_nodes_; node_id++) {
+        std::cout << "Node_id: " << node_id << std::endl;
+        std::cout << "    out_index_ptr 0x" << std::hex << (uint64_t)(out_index_[node_id]) << std::dec;
+        uint64_t count = 0;
+        for (DestID_* ptr = out_index_[node_id]; ptr < out_index_[node_id+1]; ptr++) {
+            if (count % 10 == 0)
+                std::cout << std::endl << "        ";
+            std::cout << ptr[0] << " ";
+            count++;
+        }
+        std::cout << std::endl;
+    }
+  }
 };
 
 

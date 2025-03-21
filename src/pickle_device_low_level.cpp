@@ -15,6 +15,7 @@
 #include <iomanip>
 #include <iostream>
 #include <string>
+#include <vector>
 
 #include "pickle_driver.h"
 
@@ -121,6 +122,37 @@ bool write_command_to_device(uint64_t command_type, uint64_t command_length,
   close(fd);
 
   return true;
+}
+
+struct device_specs get_device_specs() {
+  const std::string pickle_driver_dev_str = "/dev/hey_pickle";
+  const char* pickle_driver_dev = pickle_driver_dev_str.c_str();
+  int fd;
+  struct device_specs specs;
+
+  fd = open(pickle_driver_dev, O_RDWR | O_SYNC);
+
+  if (fd < 0) {
+    std::cerr << "failed to open " << pickle_driver_dev_str << std::endl;
+    perror("Error");
+    exit(errno);
+    return specs;
+  }
+
+  std::cout << "opened the fd" << std::endl;
+
+  int err = ioctl(fd, IOC_PICKLE_DRIVER_GET_DEVICE_SPECS, &specs);
+  if (err) {
+    std::cerr << "error while IOC_PICKLE_DRIVER_GET_DEVICE_SPECS from "
+              << pickle_driver_dev_str << std::endl;
+    perror("Error");
+    close(fd);
+    exit(errno);
+  }
+
+  std::cout << "acquired the spec" << std::endl;
+
+  return specs;
 }
 
 #endif  // PICKLE_DEVICE_LOW_LEVEL_H
