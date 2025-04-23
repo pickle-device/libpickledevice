@@ -8,13 +8,16 @@
 #ifndef WRAPPER_H
 #define WRAPPER_H
 
+#include <string>
+
 template <typename Graph, typename TIncomingEdgeSelector, typename TIncomingEdgeConsumer>
 PickleJob createGraphJobUsingIncomingEdges(
     const Graph* g,
+    const std::string kernel_name,
     TIncomingEdgeSelector incomingEdgeSelector, TIncomingEdgeConsumer incomingEdgeConsumer
 )
 {
-    PickleJob job;
+    PickleJob job(kernel_name);
 
     job.addArrayDescriptor(g->getInIndexArrayDescriptor());
     job.addArrayDescriptor(g->getInNeighborsArrayDescriptor());
@@ -42,10 +45,11 @@ PickleJob createGraphJobUsingIncomingEdges(
 template <typename Graph, typename TOutgoingEdgeSelector, typename TOutgoingEdgeConsumer>
 PickleJob createGraphJobUsingOutgoingEdges(
     const Graph* g,
+    const std::string kernel_name,
     TOutgoingEdgeSelector outgoingEdgeSelector, TOutgoingEdgeConsumer outgoingEdgeConsumer
 )
 {
-    PickleJob job;
+    PickleJob job(kernel_name);
 
     job.addArrayDescriptor(g->getOutIndexArrayDescriptor());
     job.addArrayDescriptor(g->getOutNeighborsArrayDescriptor());

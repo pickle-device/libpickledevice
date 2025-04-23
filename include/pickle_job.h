@@ -13,6 +13,7 @@
 #include <cstdint>
 #include <iostream>
 #include <memory>
+#include <string>
 #include <thread>
 #include <tuple>
 #include <unordered_map>
@@ -120,6 +121,7 @@ class PickleArrayDescriptor
 class PickleJob
 {
     private:
+        std::string kernel_name; // this will be used to determine which prefetch generator to use
         std::vector<std::shared_ptr<PickleArrayDescriptor>> arrays;
         std::unordered_map<uint64_t, uint64_t> array_rename_map;
         uint64_t renameCount = 0;
@@ -135,9 +137,22 @@ class PickleJob
             for (size_t i = 0; i < n_bytes; i++)
                 job_descriptor.push_back(ptr8[i]);
         }
+        void addKernelNameToJobDescriptor(std::vector<uint8_t>& job_descriptor) const
+        {
+            for (uint64_t i = 0; i < kernel_name.size(); i++) {
+                job_descriptor.push_back(kernel_name[i]);
+            }
+        }
     public:
         PickleJob()
         {
+            kernel_name = "";
+            array_rename_map[-1ULL] = -1ULL;
+            arrays.reserve(5);
+        }
+        PickleJob(std::string _kernel_name)
+        {
+            kernel_name = _kernel_name;
             array_rename_map[-1ULL] = -1ULL;
             arrays.reserve(5);
         }
@@ -175,29 +190,12 @@ class PickleJob
             renameCount++;
             arrays.push_back(array);
         }
-        std::vector<std::tuple<uint64_t, uint64_t, bool, bool, uint64_t, uint64_t, uint64_t>> getJobDescriptorTuples() const
-        {
-            std::vector<std::tuple<uint64_t, uint64_t, bool, bool, uint64_t, uint64_t, uint64_t>> arrayTuples;
-            arrayTuples.reserve(arrays.size());
-            for (auto const& array: arrays)
-            {
-                if (renameCount > 0)
-                {
-                    arrayTuples.push_back(array->getTuple(array_rename_map));
-                }
-                else
-                {
-                    arrayTuples.push_back(array->getTuple());
-                }
-            }
-            return arrayTuples;
-        }
         std::vector<uint8_t> getJobDescriptor() const
         {
             // layout: 8 bits for the number of arrays + number_of_arrays * (7 * 64 bits) for the array description
             std::vector<uint8_t> job_descriptor;
             const uint8_t n_arrays = arrays.size();
-            job_descriptor.reserve(1 + 7 * 8 * n_arrays);
+            job_descriptor.reserve(1 + 7 * 8 * n_arrays + kernel_name.size());
             job_descriptor.push_back(n_arrays);
             for (const auto & arr: arrays)
             {
@@ -209,11 +207,13 @@ class PickleJob
                 this->addToJobDescriptor(job_descriptor, arr->access_type);
                 this->addToJobDescriptor(job_descriptor, arr->addressing_mode);
             }
+            this->addKernelNameToJobDescriptor(job_descriptor);
             return job_descriptor;
         }
         void print() const
         {
             std::cout << "-----" << std::endl;
+            std::cout << "kernel_name: " << kernel_name << std::endl;
             for (const auto& arr: arrays)
             {
                 if (renameCount > 0)
