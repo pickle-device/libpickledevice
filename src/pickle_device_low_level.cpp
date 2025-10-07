@@ -48,6 +48,37 @@ bool allocate_uncacheable_page(const uint64_t mmap_id, uint8_t** ptr) {
   return true;
 }
 
+bool allocate_perf_page(uint8_t** ptr) {
+  const std::string pickle_driver_dev_str = "/dev/hey_pickle";
+  const char* pickle_driver_dev = pickle_driver_dev_str.c_str();
+  int fd;
+  int err = 0;
+
+  *ptr = nullptr;
+
+  fd = open(pickle_driver_dev, O_RDWR | O_SYNC);
+
+  if (fd < 0) {
+    std::cerr << "failed to open " << pickle_driver_dev_str << std::endl;
+    perror("Error");
+    return false;
+  }
+
+  // We set the length to 16 bytes to signal that we want to allocate a page
+  // for performance monitoring.
+  uint8_t* mmap_ptr = (uint8_t*)mmap(NULL, 16, PROT_READ | PROT_WRITE,
+                                     MAP_FILE | MAP_SHARED, fd, 0);
+  if (mmap_ptr == MAP_FAILED) {
+    std::cerr << "Failed to open mmap for" << pickle_driver_dev_str
+              << std::endl;
+    perror("Error");
+    close(fd);
+    return false;
+  }
+  *ptr = mmap_ptr;
+  return true;
+}
+
 bool get_mmap_paddr(const uint64_t mmap_id, uint64_t& paddr) {
   const std::string pickle_driver_dev_str = "/dev/hey_pickle";
   const char* pickle_driver_dev = pickle_driver_dev_str.c_str();
@@ -68,6 +99,39 @@ bool get_mmap_paddr(const uint64_t mmap_id, uint64_t& paddr) {
   mmap_params.paddr = 0;
 
   err = ioctl(fd, ARM64_IOC_PICKLE_DRIVER_MMAP_PADDR, &mmap_params);
+  if (err) {
+    std::cerr << "Unsuccessfully retrieving physical address for mmap"
+              << std::endl;
+    perror("Error");
+    close(fd);
+    return false;
+  }
+  paddr = mmap_params.paddr;
+
+  close(fd);
+  return true;
+}
+
+bool get_perf_page_paddr(uint64_t& paddr) {
+  const std::string pickle_driver_dev_str = "/dev/hey_pickle";
+  const char* pickle_driver_dev = pickle_driver_dev_str.c_str();
+  int fd;
+  int err = 0;
+  struct process_pagetable_params params;
+
+  fd = open(pickle_driver_dev, O_RDWR | O_SYNC);
+
+  if (fd < 0) {
+    std::cerr << "failed to open " << pickle_driver_dev_str << std::endl;
+    perror("Error");
+    return false;
+  }
+
+  mmap_paddr_params mmap_params;
+  mmap_params.mmap_id = 0;
+  mmap_params.paddr = 0;
+
+  err = ioctl(fd, ARM64_IOC_PICKLE_DRIVER_PERF_PAGE_PADDR, &mmap_params);
   if (err) {
     std::cerr << "Unsuccessfully retrieving physical address for mmap"
               << std::endl;
