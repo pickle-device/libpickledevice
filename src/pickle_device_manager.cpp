@@ -23,7 +23,9 @@
 
 #include "pickle_device_low_level.h"
 
-PickleDeviceManager::PickleDeviceManager() {}
+PickleDeviceManager::PickleDeviceManager() {
+  perf_page_ptr = nullptr;
+}
 
 PickleDeviceManager::~PickleDeviceManager() { deallocateUncacheablePage(0); }
 
@@ -57,6 +59,20 @@ uint8_t* PickleDeviceManager::getUCPagePtr(const uint64_t mmap_id) {
     writeUncacheablePagePaddr(mmap_id);
   }
   return mmap_id_to_uc_ptr_map[mmap_id];
+}
+
+uint8_t* PickleDeviceManager::getPerfPagePtr() {
+  if (perf_page_ptr == nullptr) {
+    bool allocate_success = allocate_perf_page(&perf_page_ptr);
+    if (!allocate_success) {
+      std::cout << "PickleDeviceManager: failed to allocate the perf page"
+                << std::endl;
+      exit(2);
+    }
+    // trigger page fault
+    perf_page_ptr[0] = 0xAA;
+  }
+  return perf_page_ptr;
 }
 
 void PickleDeviceManager::registerUncacheablePage(const uint64_t mmap_id,

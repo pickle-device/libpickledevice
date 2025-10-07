@@ -38,11 +38,13 @@ class PickleDeviceManager {
   ~PickleDeviceManager();
   bool sendJob(const PickleJob& job);
   uint8_t* getUCPagePtr(const uint64_t mmap_id);
+  uint8_t* getPerfPagePtr();
   PickleDevicePrefetcherSpecs getDevicePrefetcherSpecs();
 
  private:
   std::unordered_map<uint64_t, uint8_t*> mmap_id_to_uc_ptr_map;
   std::unordered_map<uint64_t, uint64_t> mmap_id_to_uc_paddr_map;
+  uint8_t* perf_page_ptr;
   void registerUncacheablePage(const uint64_t mmap_id, uint8_t* ptr,
                                uint64_t paddr);
   void deallocateUncacheablePage(const uint64_t mmap_id);
