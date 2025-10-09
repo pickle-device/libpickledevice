@@ -64,9 +64,9 @@ bool allocate_perf_page(uint8_t** ptr) {
     return false;
   }
 
-  // We set the length to 16 bytes to signal that we want to allocate a page
+  // We set the length to 8KiB to signal that we want to allocate a page
   // for performance monitoring.
-  uint8_t* mmap_ptr = (uint8_t*)mmap(NULL, 16, PROT_READ | PROT_WRITE,
+  uint8_t* mmap_ptr = (uint8_t*)mmap(NULL, 8192, PROT_READ | PROT_WRITE,
                                      MAP_FILE | MAP_SHARED, fd, 0);
   if (mmap_ptr == MAP_FAILED) {
     std::cerr << "Failed to open mmap for" << pickle_driver_dev_str
