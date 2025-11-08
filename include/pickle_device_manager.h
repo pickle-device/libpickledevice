@@ -27,9 +27,12 @@
 #include "pickle_utils.h"
 
 enum PickleDeviceCommand { ADD_WATCH_RANGE = 1, SEND_JOB_DESCRIPTOR = 2 };
+enum PrefetchMode { UNKNOWN = 0, SINGLE_PREFETCH = 1, BULK_PREFETCH = 2 };
 struct PickleDevicePrefetcherSpecs {
   uint64_t availability;
   uint64_t prefetch_distance;
+  PrefetchMode prefetch_mode;
+  uint64_t bulk_mode_chunk_size;
 };
 
 class PickleDeviceManager {

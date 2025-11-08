@@ -115,5 +115,13 @@ PickleDevicePrefetcherSpecs PickleDeviceManager::getDevicePrefetcherSpecs() {
 
   specs.availability = k_specs.availability;
   specs.prefetch_distance = k_specs.prefetch_distance;
+  if (k_specs.prefetch_mode == SINGLE_PREFETCH_MODE) {
+    specs.prefetch_mode = PrefetchMode::SINGLE_PREFETCH;
+  } else if (k_specs.prefetch_mode == BULK_PREFETCH_MODE) {
+    specs.prefetch_mode = PrefetchMode::BULK_PREFETCH;
+  } else {
+    specs.prefetch_mode = PrefetchMode::UNKNOWN;
+  }
+  specs.bulk_mode_chunk_size = k_specs.bulk_mode_chunk_size;
   return specs;
 }
