@@ -1,5 +1,5 @@
 // Copyright (c) 2024 Advanced Micro Devices, Inc.
-// Copyright (c) 2025 The Regents of the University of California
+// Copyright (c) 2025-2026 The Regents of the University of California
 // All rights reserved.
 // SPDX-License-Identifier: BSD-3-Clause
 
@@ -39,6 +39,7 @@ class PickleArrayDescriptor
         static uint64_t nextID;
         uint64_t array_id;
     public:
+        std::string name;
         uint64_t dst_indexing_array_id;
         uint64_t vaddr_start;
         uint64_t vaddr_end;
@@ -47,6 +48,7 @@ class PickleArrayDescriptor
         AddressingMode addressing_mode;
         PickleArrayDescriptor()
           : array_id(PickleArrayDescriptor::unassignedID),
+            name("unknown"),
             dst_indexing_array_id(-1ULL),
             vaddr_start(0), vaddr_end(0),
             element_size(0),
@@ -59,6 +61,9 @@ class PickleArrayDescriptor
             if (this->array_id == PickleArrayDescriptor::unassignedID)
                 this->array_id = PickleArrayDescriptor::assignNextId();
             return this->array_id;
+        }
+        void setName(std::string _name) {
+            name = _name;
         }
         void setAccessType(const AccessType& new_access_type)
         {
@@ -97,6 +102,7 @@ class PickleArrayDescriptor
             std::string am = (addressing_mode == AddressingMode::Index) ? "Index" : "Pointer";
             std::string at = (access_type == AccessType::Ranged) ? "Ranged" : "Single";
             std::cout << "array_id: " << array_id << std::endl \
+                      << "- name: " << name << std::endl \
                       << "- dst_array: " << dst_indexing_array_id << std::endl \
                       << "- addressing_mode: " << am << std::endl \
                       << "- access_type: " << at << std::endl \
