@@ -115,6 +115,7 @@ class PickleArrayDescriptor
             std::string am = (addressing_mode == AddressingMode::Index) ? "Index" : "Pointer";
             std::string at = (access_type == AccessType::Ranged) ? "Ranged" : "Single";
             std::cout << "array_id: " << rename_map.at(array_id) << std::endl \
+                      << "- name: " << name << std::endl \
                       << "- dst_array: " << rename_map.at(dst_indexing_array_id) << std::endl \
                       << "- addressing_mode: " << am << std::endl \
                       << "- access_type: " << at << std::endl \
